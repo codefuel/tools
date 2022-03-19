@@ -62,7 +62,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   cmd="nc -vz $current_ip $port"
   echo "*** Executing command:" $cmd
 
-  pattern = "succeeded!"
+  pattern="succeeded!"
   ping_result=`$cmd`
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   # MacOS
