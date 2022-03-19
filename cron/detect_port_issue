@@ -1,0 +1,5 @@
+# Detect whether a port is open and send a notification if there is an issue.
+#
+# Every hour check whether the there is an issue with the helium miner.
+# 0 */1 * * * root /bin/bash /usr/local/bin/detect_port_issue.sh -c "servers" -t "Helium miner alert!" -m "Helium miner issue detected" > /dev/null 2>&1
+*/1 * * * * root /bin/bash /usr/local/bin/detect_port_issue.sh -p 44158 -c "servers" -t "Helium miner alert\!" -m "Helium miner issue detected" > /dev/null 2>&1

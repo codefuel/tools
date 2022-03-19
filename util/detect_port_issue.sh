@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# detect_port_issue.sh
+# Usage: ./detect_port_issue <port_number>
+
 # Ping a specific port to determine its status and send a notification to slack
 # if a problem is detected.
 
@@ -11,9 +14,37 @@
 # sudo apt-get install nmap
 # nmap -p <port_number> <ip_address|domain_name>
 
+function usage {
+    programName=$0
+    echo "Description: use this program to post messages to Slack channel"
+    echo "Usage: $programName [-t \"sample title\"] [-b \"message body\"] [-c \"mychannel\"] [-u \"slack url\"]"
+    echo "    -t    the title of the message you are posting"
+    echo "    -m    The message body"
+    echo "    -c    The channel you are posting to"
+    echo "    -p    Port number"
+    exit 1
+}
+
+while getopts ":t:m:c:p:h" opt; do
+  case ${opt} in
+    t) title="$OPTARG"
+    ;;
+    m) message="$OPTARG"
+    ;;
+    c) channel="$OPTARG"
+    ;;
+    p) port="$OPTARG"
+    ;;
+    h) usage
+    ;;
+    \?) echo "Invalid option -$OPTARG" >&2
+    ;;
+  esac
+done
+
 # Check whehter port number was passed in
-if [ -z $1 ]; then
-    echo "!!! Port number required. Usage: ./detect_helium_hostspot_issues <port_number>"
+if [[ -z $port || -z $message || -z $channel || -z $title ]]; then
+    echo "!!! Port, message, channel, and title are required. Usage: ./detect_port_issue <port_number>"
     exit
 fi
 
@@ -21,9 +52,6 @@ if [ -z $SLACK_SERVER_KEY ]; then
   echo "!!! Environment variable, SLACK_SERVER_KEY, is not defined"
   exit
 fi
-
-# Reassign incomming variable for clarity
-port=$1
 
 # Get public ip
 current_ip=$(curl ipinfo.io/ip)
@@ -51,9 +79,9 @@ fi
 # If there is an issue, send a notification via Slack
 if ! [[ ${ping_result} =~ ${pattern} ]]; then
   url="https://hooks.slack.com/services/$SLACK_SERVER_KEY"
-  channel="servers"
-  title="Helium miner alert!"
-  message="Helium miner issue detected: $ping_result"
+  channel=$channel
+  title=$title
+  message="$message: $ping_result"
 
   status_code=$(/usr/local/bin/post_to_slack.sh -c "$channel" -t "$title" -b "$message" -u "$url")
 
