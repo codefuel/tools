@@ -1,0 +1,4 @@
+# Detect Public IP address change
+#
+# Every hour check whether the there is an issue with the helium miner.
+0 */1 * * * root /bin/bash /usr/local/bin/detect_helium_hotspot_issues.sh > /dev/null 2>&1
