@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # detect_port_issue.sh
 # Usage: ./detect_port_issue <port_number>
@@ -59,15 +59,19 @@ current_ip=$(curl ipinfo.io/ip)
 # Detect OS and modify commands accordingly
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   # Linux and rPi (linux-gnueabihf)
-  cmd="nc -vz $current_ip $port"
-  echo "*** Executing command:" $cmd
 
-  pattern="succeeded!"
+  # cmd="nc -vz $current_ip $port"
+  # pattern="succeeded"
+
+  cmd="nmap -p $port $current_ip"
+  echo "*** Executing command: $cmd"
+
+  pattern="open"
   ping_result=`$cmd`
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   # MacOS
   cmd="nmap -p $port $current_ip"
-  echo "*** Executing command:" $cmd
+  echo "*** Executing command: $cmd"
 
   pattern="open"
   ping_result=`$cmd`
@@ -86,7 +90,7 @@ if ! [[ ${ping_result} =~ ${pattern} ]]; then
   status_code=$(/usr/local/bin/post_to_slack.sh -c "$channel" -t "$title" -b "$message" -u "$url")
 
   if [[ ${status_code} -eq 200 ]]; then
-      echo "*** Posted successfully"
+      echo "*** Message posted successfully."
   else
       echo "!!! Error"
   fi
